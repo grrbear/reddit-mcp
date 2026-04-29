@@ -1,0 +1,25 @@
+  # ── Reddit MCP Server ───────────────────────────────────────────────────
+  # Remote MCP server for Claude mobile — accessible via Cloudflare tunnel
+  # Add a tunnel route: reddit-mcp.quickswoodcapital.com → http://192.168.0.11:8767
+  reddit-mcp:
+    build:
+      context: ./reddit-mcp
+      dockerfile: Dockerfile
+    container_name: reddit-mcp
+    networks:
+      - arrnet
+    ports:
+      - 8767:8767
+    environment:
+      - PORT=8767
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_USERNAME=${REDDIT_USERNAME}
+      - REDDIT_PASSWORD=${REDDIT_PASSWORD}
+      - REDDIT_USER_AGENT=claude-mcp:reddit-mcp:v1.0.0 (by /u/${REDDIT_USERNAME})
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8767/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
